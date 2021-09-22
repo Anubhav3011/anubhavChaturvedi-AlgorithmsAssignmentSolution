@@ -1,8 +1,12 @@
 package com.main;
 
+import java.util.List;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.InputMismatchException;
 import java.util.Scanner;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
 
 import com.model.Stocks;
 import com.service.MergeSort;
@@ -18,22 +22,25 @@ public class Driver {
 	public static void main(String[] args) throws InputMismatchException {
 		// TODO Auto-generated method stub
 
-		// Test Case - 5 10.13 true 15.49 false 48.71 true 96.82 false 30.56 true
+		// Test Case: 5 30.56 true 10.13 false 48.71 true 96.82 false 15.49 true
 
 		try {
 			Scanner lScanner = new Scanner(System.in);
+			boolean proceed = true;
 			int noOfCompanies = 0;
 			if (args.length == 0) {
 				System.out.println("Enter the no of companies: ");
 				noOfCompanies = lScanner.nextInt();
-			} else
+				if (!checkInput(noOfCompanies, "No of companies"))
+					proceed = false;
+			} else {
 				noOfCompanies = Integer.parseInt(args[0]);
+			}
 
-			Stocks[] lStocks = new Stocks[noOfCompanies];
-			double[] stockPrices = new double[noOfCompanies];
-			int noOfPriceRose = 0;
-			for (int i = 0, j = 1; i < noOfCompanies; i++) {
-				lStocks[i] = new Stocks();
+			List<Stocks> lStocks = new ArrayList<Stocks>();
+
+			int i = 0, j = 1;
+			while (i < noOfCompanies && proceed) {
 				double stockPrice = 0.00d;
 				boolean priceRose = false;
 				if (args.length == 0) {
@@ -45,17 +52,18 @@ public class Driver {
 					stockPrice = Double.parseDouble(args[j++]);
 					priceRose = Boolean.parseBoolean(args[j++]);
 				}
-				lStocks[i].setStockPrice(stockPrice);
-				lStocks[i].setPriceRose(priceRose);
-				stockPrices[i] = lStocks[i].getStockPrice();
-				if (lStocks[i].getPriceRose())
-					noOfPriceRose++;
+				if (!checkInput(stockPrice, "Stock price of the company " + (i + 1))) {
+					proceed = false;
+					break;
+				}
+				lStocks.add(new Stocks(stockPrice, priceRose));
+				i++;
 			}
 
 			MergeSort lMergeSort = new MergeSort();
 			int lChoice = -1;
 
-			do {
+			while (lChoice != 0 && proceed) {
 				System.out.println("-----------------------------------------------\n"
 						+ "Enter the operation that you want to perform\n"
 						+ "1. Display the companies stock prices in ascending order\n"
@@ -68,57 +76,73 @@ public class Driver {
 				lChoice = lScanner.nextInt();
 				switch (lChoice) {
 
+				// Exit
 				case 0: {
 				}
 					break;
 
+				// Ascending Order Stock Prices
 				case 1: {
-					System.out.println("Stock prices in ascending order are :");
-					System.out.println(Arrays.toString(lMergeSort.getSortedArray(stockPrices, false)).substring(1)
-							.replace("]", "").replaceAll(", ", " "));
+					System.out.println("Stock prices in ascending order are : \n" + Arrays
+							.toString(lMergeSort.getSortedArray(
+									lStocks.stream().mapToDouble(Stocks::getStockPrice).toArray(), false))
+							.substring(1).replace("]", "").replaceAll(", ", " "));
 				}
 					break;
 
+				// Descending Order Stock Prices
 				case 2: {
-					System.out.println("Stock prices in descending order are :");
-					System.out.println(Arrays.toString(lMergeSort.getSortedArray(stockPrices, true)).substring(1)
-							.replace("]", "").replaceAll(", ", " "));
+					System.out.println("Stock prices in descending order are : \n" + Arrays
+							.toString(lMergeSort.getSortedArray(
+									lStocks.stream().mapToDouble(Stocks::getStockPrice).toArray(), true))
+							.substring(1).replace("]", "").replaceAll(", ", " "));
 				}
 					break;
 
+				// Rose Stock Prices
 				case 3: {
-					System.out.println("Total no of companies whose stock price rose today : " + noOfPriceRose);
+					System.out.println("Total no of companies whose stock price rose today : "
+							+ lStocks.stream().filter(Stocks -> Stocks.getPriceRose()).count());
 				}
 					break;
 
+				// Declined Stock Prices
 				case 4: {
 					System.out.println("Total no of companies whose stock price declined today : "
-							+ (noOfCompanies - noOfPriceRose));
+							+ lStocks.stream().filter(Stocks -> (!(Stocks.getPriceRose()))).count());
 				}
 					break;
 
+				// Search Stock Price
 				case 5: {
 					System.out.println("Enter the key value: ");
 					double key = lScanner.nextDouble();
-					for (int i = 0; i < lStocks.length; i++) {
-						if (key == lStocks[i].getStockPrice()) {
-							System.out.println("Stock of value " + key + " is present");
-							break;
-						} else if (i == lStocks.length - 1)
-							System.out.println("Stock of value " + key + " is not present");
-					}
+					if (DoubleStream.of(lStocks.stream().mapToDouble(Stocks::getStockPrice).toArray()).boxed()
+							.collect(Collectors.toCollection(ArrayList::new)).contains(key))
+						System.out.println("Stock of value " + key + " is present");
+					else
+						System.out.println("Value not found");
 				}
 					break;
 
 				default:
 					System.out.println("Invalid choice. Enter a valid no.");
 				}
-			} while (lChoice != 0);
+			}
+			System.out.println("Exited successfully");
 			lScanner.close();
 		} catch (InputMismatchException e) {
 			System.out.println("Invalid Input.\n" + "Try Test Case mentioned below for testing\n"
 					+ "5 30.56 true 10.13 false 48.71 true 96.82 false 15.49 true");
 			e.printStackTrace();
 		}
+	}
+
+	public static <T extends Number> boolean checkInput(T input, String inputName) {
+		if (input.doubleValue() <= 0) {
+			System.out.println(inputName + " should be greater than 0");
+			return false;
+		}
+		return true;
 	}
 }
