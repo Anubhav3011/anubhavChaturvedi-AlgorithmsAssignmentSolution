@@ -6,18 +6,18 @@ package com.model;
  * @date 2021-09-19
  */
 
-public class Stocks {
+public class Stocks<T extends Number> {
 
-	private Double stockPrice;
+	private T stockPrice;
 	private Boolean priceRose;
 
-	public Stocks(Double stockPrice, Boolean priceRose) {
+	public Stocks(T stockPrice, Boolean priceRose) {
 		super();
 		this.stockPrice = stockPrice;
 		this.priceRose = priceRose;
 	}
 
-	public Double getStockPrice() {
+	public T getStockPrice() {
 		return stockPrice;
 	}
 
