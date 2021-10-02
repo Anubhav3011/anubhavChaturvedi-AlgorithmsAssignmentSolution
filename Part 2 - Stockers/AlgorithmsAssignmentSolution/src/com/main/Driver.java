@@ -69,10 +69,10 @@ public class Driver {
 				lSortAndSearch = new SortAndSearch<Double>();
 				stockPrices = Arrays.stream(lStocks.stream().mapToDouble(Stocks::getStockPrice).toArray()).boxed()
 						.toArray(Double[]::new);
-				ascOrderStockPrices = lSortAndSearch.getSortedArray(
-						Arrays.copyOf(stockPrices, stockPrices.length), false, new Double[noOfCompanies]);
-				descOrderStockPrices = lSortAndSearch.getSortedArray(
-						Arrays.copyOf(stockPrices, stockPrices.length), true, new Double[noOfCompanies]);
+				ascOrderStockPrices = lSortAndSearch.getSortedArray(Arrays.copyOf(stockPrices, stockPrices.length),
+						false, new Double[noOfCompanies]);
+				descOrderStockPrices = lSortAndSearch.getSortedArray(Arrays.copyOf(stockPrices, stockPrices.length),
+						true, new Double[noOfCompanies]);
 			}
 
 			int lChoice = -1;
@@ -96,8 +96,8 @@ public class Driver {
 
 				// Ascending Order Stock Prices
 				case 1: {
-					System.out.println("Stock prices in ascending order are : \n" + Arrays
-							.toString(ascOrderStockPrices).substring(1).replace("]", "").replaceAll(", ", " "));
+					System.out.println("Stock prices in ascending order are : \n"
+							+ Arrays.toString(ascOrderStockPrices).substring(1).replace("]", "").replaceAll(", ", " "));
 				}
 					break;
 
